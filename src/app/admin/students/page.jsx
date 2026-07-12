@@ -2,24 +2,36 @@
 import { Users, Search, QrCode, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabse";
+import QrModal from "@/components/students/QrModal.jsx";
+import EditStudentModal from "@/components/students/EditStudentModal";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
   const fetchStudents = async () => {
-    const { data, error } = await supabase.from("students").select("*");
+    try {
+      setLoading(true);
 
-    if (error) {
-      console.error("error.message ");
-      return;
+      const { data, error } = await supabase.from("students").select("*");
+
+      if (error) {
+        console.error("error.message ");
+        return;
+      }
+
+      setStudents(data);
+    } finally {
+      setLoading(false);
     }
-
-    setStudents(data);
   };
 
   const filteredStudents = students.filter((student) => {
@@ -84,44 +96,108 @@ export default function StudentsPage() {
               </thead>
 
               <tbody>
-                {filteredStudents.map(
-                  ({ id, student_id, full_name, course, year_level }) => (
-                    <tr
-                      key={id}
-                      className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-4 py-10 text-center text-sm text-gray-500"
                     >
-                      <td className="px-4 py-4 text-sm font-medium text-gray-800">
-                        {student_id}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {full_name}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {course}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {year_level}
-                      </td>
-                      <td className="px-4 py-4">
-                        <button className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-700/25 transition-colors hover:bg-blue-800">
-                          <QrCode className="h-4 w-4" />
-                          View QR
-                        </button>
-                      </td>
-                      <td className="px-4 py-4">
-                        <button className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-700">
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ),
+                      Loading Students...
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map(
+                    ({ id, student_id, full_name, course, year_level }) => (
+                      <tr
+                        key={id}
+                        className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
+                      >
+                        <td className="px-4 py-4 text-sm font-medium text-gray-800">
+                          {student_id}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-700">
+                          {full_name}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-700">
+                          {course}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-700">
+                          {year_level}
+                        </td>
+                        <td className="px-4 py-4">
+                          <button
+                            onClick={() => {
+                              setSelectedStudent({
+                                id,
+                                student_id,
+                                full_name,
+                              });
+
+                              setShowQRModal(true);
+                            }}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-xs font-semibold text-white"
+                          >
+                            <QrCode className="h-4 w-4" />
+                            View QR
+                          </button>
+                        </td>
+                        <td className="px-4 py-4">
+                          <button
+                            onClick={() => {
+                              setSelectedStudent({
+                                id,
+                                student_id,
+                                full_name,
+                                course,
+                                year_level,
+                              });
+                              setShowEditModal(true);
+                            }}
+                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-700"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )
                 )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {showQRModal && (
+        <QrModal
+          student={selectedStudent}
+          onClose={() => {
+            setShowQRModal(false);
+            setSelectedStudent(null);
+          }}
+        />
+      )}
+
+      {showEditModal && (
+        <EditStudentModal
+          student={selectedStudent}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedStudent(null);
+          }}
+          onUpdated={(updated) => {
+            setStudents((prev) =>
+              prev.map((student) =>
+                student.id === updated.id
+                  ? { ...student, ...updated }
+                  : student,
+              ),
+            );
+          }}
+        />
+      )}
+
     </main>
   );
 }
