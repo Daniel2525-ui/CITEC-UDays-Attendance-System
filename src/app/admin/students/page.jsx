@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabse";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchStudents();
@@ -21,9 +22,12 @@ export default function StudentsPage() {
     setStudents(data);
   };
 
-  const bsitCount = students.filter(
-    (student) => student.program === "BSIT",
-  ).length;
+  const filteredStudents = students.filter((student) => {
+    return (
+      student.student_id.toLowerCase().includes(search.toLowerCase()) ||
+      student.full_name.toLowerCase().includes(search.toLocaleLowerCase())
+    );
+  });
 
   return (
     <main className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
@@ -45,24 +49,12 @@ export default function StudentsPage() {
             <input
               type="text"
               placeholder="Search by Student ID or Student Name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 text-sm text-gray-800 placeholder:text-gray-400 shadow-sm focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10"
             />
           </div>
         </div>
-
-        {/* Summary Card */}
-        <div className="mb-8 flex w-full items-center gap-4 rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-700/10">
-            <Users className="h-7 w-7 text-blue-700" strokeWidth={2} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Total Students</p>
-            <p className="text-2xl font-bold text-gray-800">
-              {students.length}
-            </p>
-          </div>
-        </div>
-        {bsitCount}
 
         {/* Students Table */}
         <div className="rounded-3xl bg-white p-2 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-4">
@@ -92,7 +84,7 @@ export default function StudentsPage() {
               </thead>
 
               <tbody>
-                {students.map(
+                {filteredStudents.map(
                   ({ id, student_id, full_name, course, year_level }) => (
                     <tr
                       key={id}
