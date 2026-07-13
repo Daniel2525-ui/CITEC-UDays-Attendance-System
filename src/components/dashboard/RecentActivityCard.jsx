@@ -3,7 +3,7 @@ export default function RecentActivityCard({ activity }) {
     <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 lg:col-span-2">
       <h2 className="text-lg font-bold text-gray-800">Recent Activity</h2>
       <p className="mt-1 text-sm text-gray-500">
-        Latest students who scanned in
+        Latest students who scanned indasdsa
       </p>
 
       <div className="mt-5 divide-y divide-gray-50">
