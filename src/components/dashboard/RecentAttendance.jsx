@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabse";
+import { supabase } from "@/lib/supabase";
 import StatusBadge from "./StatusBadge";
 
 export default function RecentAttendance() {

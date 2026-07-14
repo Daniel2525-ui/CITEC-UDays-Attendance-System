@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { X, Pencil, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabse";
+import { supabase } from "@/lib/supabase";
 
 export default function EditStudentModal({ student, onClose, onUpdated }) {
   const [fullName, setFullName] = useState("");

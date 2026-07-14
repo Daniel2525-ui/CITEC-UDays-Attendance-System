@@ -1,7 +1,7 @@
 "use client";
-import { Users, Search, QrCode, Pencil } from "lucide-react";
+import { Search, QrCode, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabse";
+import { supabase } from "@/lib/supabase";
 import QrModal from "@/components/students/QrModal.jsx";
 import EditStudentModal from "@/components/students/EditStudentModal";
 
@@ -185,7 +185,7 @@ export default function StudentsPage() {
           onClose={() => {
             setShowEditModal(false);
             setSelectedStudent(null);
-          }}
+          }}  
           onUpdated={(updated) => {
             setStudents((prev) =>
               prev.map((student) =>

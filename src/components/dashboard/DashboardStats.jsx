@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Users, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { supabase } from "@/lib/supabse";
+import { supabase } from "@/lib/supabase";
 
 export default function DashboardStats() {
   const [totalStudents, setTotalStudents] = useState(0);
@@ -64,7 +64,6 @@ export default function DashboardStats() {
     }
   };
 
-  // Absent isn't stored directly — it's everyone not yet accounted for today
   const absent = Math.max(totalStudents - present - incomplete, 0);
 
   const stats = [

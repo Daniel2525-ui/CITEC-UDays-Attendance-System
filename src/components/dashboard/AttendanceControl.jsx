@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabse";
+import { supabase } from "@/lib/supabase";
 
-const getTodayDate = () => new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+const getTodayDate = () => new Date().toISOString().split("T")[0]; 
 
 export default function AttendanceControl() {
   const [dayRecord, setDayRecord] = useState(null);
@@ -35,18 +35,6 @@ export default function AttendanceControl() {
     }
   };
 
-  /**
-   * Derived state — driven by two DB columns:
-   *   attendance_open | time_out_enabled | meaning
-   *   -----------------|-------------------|---------------------
-   *   true             | false             | Time In enabled
-   *   true             | true              | Time Out enabled
-   *   false            | (any)             | Attendance closed
-   *
-   * Time In and Time Out are mutually exclusive phases, but both
-   * toggles are ALWAYS visible and clickable — the admin has full
-   * manual control at any point, nothing ever hides itself.
-   */
   const isOpen = dayRecord?.attendance_open ?? false;
   const timeInEnabled = isOpen && !dayRecord?.time_out_enabled;
   const timeOutEnabled = isOpen && !!dayRecord?.time_out_enabled;
@@ -57,7 +45,6 @@ export default function AttendanceControl() {
       ? "TIME OUT"
       : "—";
 
-  // Writes changes to today's row — creates it first if it doesn't exist yet.
   const applyChanges = async (changes) => {
     try {
       setUpdating(true);
@@ -77,7 +64,7 @@ export default function AttendanceControl() {
 
         setDayRecord(data);
       } else {
-        // No row for today yet — figure out the next day_number and create it.
+
         const { data: lastDay } = await supabase
           .from("attendance_days")
           .select("day_number")
@@ -111,17 +98,14 @@ export default function AttendanceControl() {
     }
   };
 
-  // Admin toggles Time In on/off directly — always available.
   const handleToggleTimeIn = () => {
     if (timeInEnabled) {
-      // Turning Time In off with nothing else active closes attendance.
       applyChanges({ attendance_open: false, time_out_enabled: false });
     } else {
       applyChanges({ attendance_open: true, time_out_enabled: false });
     }
   };
 
-  // Admin toggles Time Out on/off directly — always available.
   const handleToggleTimeOut = () => {
     if (timeOutEnabled) {
       applyChanges({ attendance_open: false, time_out_enabled: false });
@@ -142,7 +126,6 @@ export default function AttendanceControl() {
           </p>
         </div>
 
-        {/* Status + Phase */}
         <div className="flex gap-6 sm:gap-10">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
@@ -171,7 +154,6 @@ export default function AttendanceControl() {
         </div>
       </div>
 
-      {/* Toggle Rows — always visible, admin has full manual control */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <button
           onClick={handleToggleTimeIn}

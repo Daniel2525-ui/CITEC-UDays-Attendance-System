@@ -1,7 +1,7 @@
 "use client";
 import { Mail, Lock, QrCode, ShieldCheck, Users } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "../lib/supabse";
+import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -53,9 +53,9 @@ export default function LoginPage() {
     console.log("Profile:", profile);
 
     if (profile.role === "administrator") {
-      router.push("/admin");
+      router.push("/admin/dashboard");
     } else if (profile.role === "officer") {
-      router.push("/officer");
+      router.push("/officer/scan");
     }
   };
   

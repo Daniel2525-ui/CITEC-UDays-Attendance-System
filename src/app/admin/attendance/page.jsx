@@ -1,9 +1,24 @@
-import React from 'react'
+import AttendanceHeader from "@/components/attendance/AttendanceHeader";
+import AttendanceStats from "@/components/attendance/AttendanceStats";
+import AttendanceToolbar from "@/components/attendance/AttendanceToolbar";
+import AttendanceTable from "@/components/attendance/AttendanceTable";
 
-function page() {
+export default function Page() {
   return (
-    <div>Attendance</div>
-  )
-}
+    <div className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
+      <div className="mx-auto w-full max-w-7xl">
+        {/* Page Header */}
+        <AttendanceHeader />
 
-export default page
+        {/* Summary Cards */}
+        <AttendanceStats />
+
+        {/* Search & Filter Bar */}
+        <AttendanceToolbar />
+
+        {/* Attendance Table */}
+        <AttendanceTable />
+      </div>
+    </div>
+  );
+}
