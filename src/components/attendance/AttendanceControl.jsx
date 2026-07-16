@@ -48,9 +48,6 @@ export default function AttendanceControl() {
     setLoading(false);
   };
 
-  // ==========================================
-  // UPDATE (NEVER INSERT)
-  // ==========================================
   const updateAttendanceSession = async (changes, successText) => {
     if (!dayRecord?.id) return;
 
@@ -91,12 +88,6 @@ export default function AttendanceControl() {
     updateAttendanceSession(
       { attendance_open: true, time_out_enabled: true },
       "Time Out is now enabled.",
-    );
-
-  const handleDisableTimeOut = () =>
-    updateAttendanceSession(
-      { attendance_open: true, time_out_enabled: false },
-      "Time Out has been disabled.",
     );
 
   const attendanceExists = !!dayRecord;
@@ -153,9 +144,6 @@ export default function AttendanceControl() {
     );
   }
 
-  // ==========================================
-  // MAIN VIEW — today's attendance session
-  // ==========================================
   return (
     <div className="mb-8 rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-8">
       <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
@@ -196,7 +184,7 @@ export default function AttendanceControl() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <button
           onClick={handleOpenAttendance}
           disabled={updating || timeInActive}
@@ -204,15 +192,6 @@ export default function AttendanceControl() {
         >
           <CheckCircle2 className="h-4 w-4" />
           Open Time In
-        </button>
-
-        <button
-          onClick={handleCloseAttendance}
-          disabled={updating || !isOpen}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <XCircle className="h-4 w-4" />
-          Close Attendance
         </button>
 
         <button
@@ -225,12 +204,12 @@ export default function AttendanceControl() {
         </button>
 
         <button
-          onClick={handleDisableTimeOut}
-          disabled={updating || !isOpen || !timeOutActive}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleCloseAttendance}
+          disabled={updating || !isOpen}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <XCircle className="h-4 w-4" />
-          Disable Time Out
+          Close Attendance
         </button>
       </div>
 
