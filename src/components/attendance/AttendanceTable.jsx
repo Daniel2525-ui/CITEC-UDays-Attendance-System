@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ClipboardX, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { mergeStudentsWithAttendance } from "@/lib/attendance-helpers";
 import AttendanceToolbar from "./AttendanceToolbar";
 import AttendanceRow from "./AttendanceRow";
 
@@ -17,100 +15,29 @@ const TABLE_HEADERS = [
   "Time In",
   "Time Out",
   "Status",
-  "Actions",
 ];
 
-export default function AttendanceTable({ attendanceDayId }) {
-  const [attendanceDay, setAttendanceDay] = useState(null);
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function AttendanceTable({
+  attendanceDay,
+  rows,
+  loading,
+  error,
+}) {
   const [search, setSearch] = useState("");
-
-  const fetchAttendanceDay = useCallback(async () => {
-    const { data, error: fetchError } = await supabase
-      .from("attendance_days")
-      .select("*")
-      .eq("id", attendanceDayId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    return data;
-  }, [attendanceDayId]);
-
-  const fetchAllStudents = useCallback(async () => {
-    const { data, error: fetchError } = await supabase
-      .from("students")
-      .select("*")
-      .order("full_name");
-
-    if (fetchError) throw fetchError;
-
-    return data;
-  }, []);
-
-  const fetchAttendanceForDay = useCallback(async () => {
-    const { data, error: fetchError } = await supabase
-      .from("attendance")
-      .select("*")
-      .eq("attendance_day_id", attendanceDayId);
-
-    if (fetchError) throw fetchError;
-
-    return data;
-  }, [attendanceDayId]);
-
-  const loadAttendanceData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const [day, students, attendanceRecords] = await Promise.all([
-        fetchAttendanceDay(),
-        fetchAllStudents(),
-        fetchAttendanceForDay(),
-      ]);
-
-      setAttendanceDay(day);
-      setRows(mergeStudentsWithAttendance(students, attendanceRecords, day));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchAttendanceDay, fetchAllStudents, fetchAttendanceForDay]);
-
-  useEffect(() => {
-    if (!attendanceDayId) {
-      setLoading(false);
-      return;
-    }
-
-    loadAttendanceData();
-  }, [attendanceDayId, loadAttendanceData]);
 
   const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase();
-
     if (!query) return rows;
-
-    return rows.filter(({ student }) => {
-      return (
+    return rows.filter(
+      ({ student }) =>
         student.student_id.toLowerCase().includes(query) ||
-        student.full_name.toLowerCase().includes(query)
-      );
-    });
+        student.full_name.toLowerCase().includes(query),
+    );
   }, [rows, search]);
-
-  const handleEdit = (row) => {
-    console.log("Edit attendance for", row.student.student_id);
-  };
 
   return (
     <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-8">
       <AttendanceToolbar search={search} onSearchChange={setSearch} />
-
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-500">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -148,7 +75,6 @@ export default function AttendanceTable({ attendanceDayId }) {
                   key={row.rowKey}
                   row={row}
                   attendanceDay={attendanceDay}
-                  onEdit={handleEdit}
                 />
               ))}
             </tbody>

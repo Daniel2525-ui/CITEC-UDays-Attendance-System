@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAttendanceData } from "@/lib/hooks/useAttendanceData";
 import AttendanceHeader from "@/components/attendance/AttendanceHeader";
 import AttendanceStats from "@/components/attendance/AttendanceStats";
 import AttendanceTable from "@/components/attendance/AttendanceTable";
@@ -11,7 +12,6 @@ export default function Page() {
 
   useEffect(() => {
     const resolveCurrentAttendanceDay = async () => {
-
       const { data: openDay, error: openDayError } = await supabase
         .from("attendance_days")
         .select("id")
@@ -21,7 +21,10 @@ export default function Page() {
         .maybeSingle();
 
       if (openDayError) {
-        console.error("Failed to fetch open attendance day:", openDayError.message);
+        console.error(
+          "Failed to fetch open attendance day:",
+          openDayError.message,
+        );
       }
 
       if (openDay) {
@@ -37,7 +40,10 @@ export default function Page() {
         .maybeSingle();
 
       if (latestDayError) {
-        console.error("Failed to fetch latest attendance day:", latestDayError.message);
+        console.error(
+          "Failed to fetch latest attendance day:",
+          latestDayError.message,
+        );
         return;
       }
 
@@ -47,14 +53,22 @@ export default function Page() {
     resolveCurrentAttendanceDay();
   }, []);
 
+  const { attendanceDay, rows, loading, error } =
+    useAttendanceData(attendanceDayId);
+
   return (
     <div className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto w-full max-w-7xl">
         <AttendanceHeader />
 
-        <AttendanceStats />
+        <AttendanceStats rows={rows} />
 
-        <AttendanceTable attendanceDayId={attendanceDayId} />
+        <AttendanceTable
+          attendanceDay={attendanceDay}
+          rows={rows}
+          loading={loading}
+          error={error}
+        />
       </div>
     </div>
   );

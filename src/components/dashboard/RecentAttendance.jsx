@@ -15,8 +15,25 @@ export default function RecentAttendance() {
     try {
       setLoading(true);
 
-      // Pull the 5 most recent attendance records, joined with student info.
-      // "students" here is the embedded relationship from attendance.student_id -> students.id
+      const today = new Date().toLocaleDateString("en-CA");
+
+      const { data: dayRecord, error: dayError } = await supabase
+        .from("attendance_days")
+        .select("id")
+        .eq("attendance_date", today)
+        .maybeSingle();
+
+      if (dayError) {
+        console.error(dayError.message);
+        setRecentAttendance([]);
+        return;
+      }
+
+      if (!dayRecord?.id) {
+        setRecentAttendance([]);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("attendance")
         .select(
@@ -30,23 +47,20 @@ export default function RecentAttendance() {
           )
         `,
         )
-        .order("time_in", { ascending: false })
+        .eq("attendance_day_id", dayRecord.id)
+        .order("time_in", { ascending: false, nullsFirst: false })
         .limit(5);
 
       if (error) {
         console.error(error.message);
         return;
       }
-
-      // Reshape rows into the flat structure the table expects.
-      // DB status is 'Complete' / 'Incomplete' — map 'Complete' to 'Present'
-      // so it matches the badge styles already used across the dashboard.
       const formatted = (data || []).map((row) => ({
         studentId: row.students?.student_id,
         name: row.students?.full_name,
         timeIn: formatTime(row.time_in),
         timeOut: row.time_out ? formatTime(row.time_out) : null,
-        status: row.status === "Complete" ? "Present" : "Incomplete",
+        status: row.status === "Complete" ? "Present" : row.status,
       }));
 
       setRecentAttendance(formatted);
@@ -55,7 +69,6 @@ export default function RecentAttendance() {
     }
   };
 
-  // Formats a timestamptz value into e.g. "8:02 AM"
   const formatTime = (timestamp) => {
     if (!timestamp) return null;
     return new Date(timestamp).toLocaleTimeString("en-US", {

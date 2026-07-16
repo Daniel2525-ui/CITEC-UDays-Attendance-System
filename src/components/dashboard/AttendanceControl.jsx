@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-const getTodayDate = () => new Date().toISOString().split("T")[0]; 
+const getTodayDate = () => new Date().toLocaleDateString("en-CA");
 
 export default function AttendanceControl() {
   const [dayRecord, setDayRecord] = useState(null);
@@ -64,7 +64,6 @@ export default function AttendanceControl() {
 
         setDayRecord(data);
       } else {
-
         const { data: lastDay } = await supabase
           .from("attendance_days")
           .select("day_number")

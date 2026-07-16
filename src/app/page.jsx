@@ -58,12 +58,10 @@ export default function LoginPage() {
       router.push("/officer/scan");
     }
   };
-  
+
   return (
     <main className="min-h-screen w-full bg-white lg:grid lg:grid-cols-2">
-      {/* LEFT SIDE — Welcome Section */}
       <section className="relative flex flex-col justify-center overflow-hidden bg-linear-to-br from-blue-800 via-blue-700 to-blue-600 px-8 py-16 sm:px-12 lg:px-16 lg:py-0">
-        {/* Decorative shapes */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-yellow-400/10 blur-3xl" />
           <div className="absolute top-1/3 -right-10 h-72 w-72 rounded-full bg-yellow-400/10 blur-3xl" />
@@ -73,7 +71,6 @@ export default function LoginPage() {
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-md lg:mx-0">
-          {/* Logo */}
           <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-sm">
             <QrCode className="h-8 w-8 text-yellow-400" strokeWidth={2} />
           </div>
@@ -92,7 +89,6 @@ export default function LoginPage() {
             student attendance during University Days.
           </p>
 
-          {/* Feature highlights */}
           <div className="mt-10 space-y-4">
             {features.map((feature, index) => {
               const Icon = feature.icon;
@@ -113,7 +109,6 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* RIGHT SIDE — Login Card */}
       <section className="flex items-center justify-center bg-gray-50 px-6 py-16 sm:px-10 lg:py-0">
         <div className="w-full max-w-md">
           <div className="rounded-3xl bg-white p-8 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-10">
@@ -125,7 +120,6 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
-              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
@@ -147,7 +141,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label
                   htmlFor="password"
@@ -169,7 +162,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
                 className="mt-2 w-full rounded-xl bg-blue-700 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-colors hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-600/30"

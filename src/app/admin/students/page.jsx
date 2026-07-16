@@ -12,7 +12,7 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
+  
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -36,7 +36,7 @@ export default function StudentsPage() {
 
   const filteredStudents = students.filter((student) => {
     return (
-      student.student_id.toLowerCase().includes(search.toLowerCase()) ||
+      student.student_id.includes(search) ||
       student.full_name.toLowerCase().includes(search.toLocaleLowerCase())
     );
   });

@@ -7,6 +7,7 @@ export default function DashboardStats() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [present, setPresent] = useState(0);
   const [incomplete, setIncomplete] = useState(0);
+  const [absent, setAbsent] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function DashboardStats() {
 
       if (studentError) console.error(studentError.message);
 
-      const today = new Date().toISOString().split("T")[0]; 
+      const today = new Date().toLocaleDateString("en-CA");
 
       const { data: dayRecord, error: dayError } = await supabase
         .from("attendance_days")
@@ -35,36 +36,44 @@ export default function DashboardStats() {
 
       let presentCount = 0;
       let incompleteCount = 0;
+      let absentCount = 0;
 
-      // Only query attendance if a session exists for today
       if (dayRecord?.id) {
-        const [{ count: completeCount }, { count: incompleteCountRes }] =
-          await Promise.all([
-            supabase
-              .from("attendance")
-              .select("*", { count: "exact", head: true })
-              .eq("attendance_day_id", dayRecord.id)
-              .eq("status", "Complete"),
-            supabase
-              .from("attendance")
-              .select("*", { count: "exact", head: true })
-              .eq("attendance_day_id", dayRecord.id)
-              .eq("status", "Incomplete"),
-          ]);
+        const [
+          { count: completeCount },
+          { count: incompleteCountRes },
+          { count: absentCountRes },
+        ] = await Promise.all([
+          supabase
+            .from("attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("attendance_day_id", dayRecord.id)
+            .eq("status", "Complete"),
+          supabase
+            .from("attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("attendance_day_id", dayRecord.id)
+            .eq("status", "Incomplete"),
+          supabase
+            .from("attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("attendance_day_id", dayRecord.id)
+            .eq("status", "Absent"),
+        ]);
 
         presentCount = completeCount || 0;
         incompleteCount = incompleteCountRes || 0;
+        absentCount = absentCountRes || 0;
       }
 
       setTotalStudents(studentCount || 0);
       setPresent(presentCount);
       setIncomplete(incompleteCount);
+      setAbsent(absentCount);
     } finally {
       setLoading(false);
     }
   };
-
-  const absent = Math.max(totalStudents - present - incomplete, 0);
 
   const stats = [
     {
@@ -94,7 +103,7 @@ export default function DashboardStats() {
     {
       label: "Absent",
       value: absent,
-      description: "Not yet scanned",
+      description: "Marked absent for today",
       icon: XCircle,
       iconBg: "bg-red-50",
       iconColor: "text-red-600",

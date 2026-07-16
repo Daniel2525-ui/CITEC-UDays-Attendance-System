@@ -1,43 +1,77 @@
-import { CheckCircle2, AlertTriangle, XCircle, ClipboardList } from "lucide-react";
+"use client";
 
-export default function AttendanceStats() {
+import { useMemo } from "react";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  ClipboardList,
+} from "lucide-react";
+
+export default function AttendanceStats({ rows = [] }) {
+  const stats = useMemo(() => {
+    return rows.reduce(
+      (acc, row) => {
+        const status = row.status?.toLowerCase();
+        if (status === "present") acc.present += 1;
+        else if (status === "incomplete") acc.incomplete += 1;
+        else if (status === "absent") acc.absent += 1;
+        acc.total += 1;
+        return acc;
+      },
+      { present: 0, incomplete: 0, absent: 0, total: 0 },
+    );
+  }, [rows]);
+
+  const cards = [
+    {
+      label: "Present",
+      value: stats.present,
+      icon: CheckCircle2,
+      bg: "bg-green-50",
+      color: "text-green-600",
+    },
+    {
+      label: "Incomplete",
+      value: stats.incomplete,
+      icon: AlertTriangle,
+      bg: "bg-yellow-50",
+      color: "text-yellow-600",
+    },
+    {
+      label: "Absent",
+      value: stats.absent,
+      icon: XCircle,
+      bg: "bg-red-50",
+      color: "text-red-600",
+    },
+    {
+      label: "Total Records",
+      value: stats.total,
+      icon: ClipboardList,
+      bg: "bg-blue-700/10",
+      color: "text-blue-700",
+    },
+  ];
+
   return (
     <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {/* Present */}
-      <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-50">
-          <CheckCircle2 className="h-6 w-6 text-green-600" />
+      {cards.map(({ label, value, icon: Icon, bg, color }) => (
+        <div
+          key={label}
+          className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100"
+        >
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${bg}`}
+          >
+            <Icon className={`h-6 w-6 ${color}`} />
+          </div>
+          <p className="mt-4 text-3xl font-bold text-gray-800">
+            {value.toLocaleString()}
+          </p>
+          <p className="mt-1 text-sm font-medium text-gray-500">{label}</p>
         </div>
-        <p className="mt-4 text-3xl font-bold text-gray-800">932</p>
-        <p className="mt-1 text-sm font-medium text-gray-500">Present</p>
-      </div>
-
-      {/* Incomplete */}
-      <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-50">
-          <AlertTriangle className="h-6 w-6 text-yellow-600" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-800">47</p>
-        <p className="mt-1 text-sm font-medium text-gray-500">Incomplete</p>
-      </div>
-
-      {/* Absent */}
-      <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50">
-          <XCircle className="h-6 w-6 text-red-600" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-800">121</p>
-        <p className="mt-1 text-sm font-medium text-gray-500">Absent</p>
-      </div>
-
-      {/* Total Records */}
-      <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-700/10">
-          <ClipboardList className="h-6 w-6 text-blue-700" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-800">1,100</p>
-        <p className="mt-1 text-sm font-medium text-gray-500">Total Records</p>
-      </div>
+      ))}
     </div>
   );
 }
