@@ -1,6 +1,5 @@
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardStats from "@/components/dashboard/DashboardStats";
-import AttendanceControl from "@/components/dashboard/AttendanceControl";
 import RecentAttendance from "@/components/dashboard/RecentAttendance";
 
 export default function Page() {
@@ -12,9 +11,6 @@ export default function Page() {
 
         {/* Statistics Cards */}
         <DashboardStats />
-
-        {/* Attendance Control */}
-        <AttendanceControl />
 
         {/* Recent Attendance */}
         <RecentAttendance />

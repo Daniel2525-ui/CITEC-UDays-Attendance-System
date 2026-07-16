@@ -35,6 +35,8 @@ export function computeAttendanceStatus(attendanceRecord, attendanceDay) {
     return attendanceDay?.attendance_open ? "Not Yet Timed In" : "Absent";
   }
 
+  if (attendanceRecord.status === "Absent") return "Absent";
+
   const { time_in: timeIn, time_out: timeOut } = attendanceRecord;
 
   if (timeIn && timeOut) return "Complete";

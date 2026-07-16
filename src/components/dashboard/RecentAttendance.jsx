@@ -140,9 +140,9 @@ export default function RecentAttendance() {
                     {entry.name}
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-700">
-                    {entry.timeIn}
+                    {entry.timeIn ? console.log("Error") : ("Timed In")}
                   </td>
-                  <td className="px-4 py-4 text-sm">
+                  <td className="px-4 py-4 text-sm">  
                     {entry.timeOut ? (
                       <span className="text-gray-700">{entry.timeOut}</span>
                     ) : (

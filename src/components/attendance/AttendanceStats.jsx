@@ -12,10 +12,9 @@ export default function AttendanceStats({ rows = [] }) {
   const stats = useMemo(() => {
     return rows.reduce(
       (acc, row) => {
-        const status = row.status?.toLowerCase();
-        if (status === "present") acc.present += 1;
-        else if (status === "incomplete") acc.incomplete += 1;
-        else if (status === "absent") acc.absent += 1;
+        if (row.status === "Complete") acc.present += 1;
+        else if (row.status === "Timed In") acc.incomplete += 1;
+        else if (row.status === "Absent") acc.absent += 1;
         acc.total += 1;
         return acc;
       },
