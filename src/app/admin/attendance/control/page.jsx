@@ -1,9 +1,11 @@
-import React from 'react'
+import AttendanceControl from "@/components/attendance/AttendanceControl";
 
-function page() {
+export default function AttendanceControlPage() {
   return (
-    <div>page</div>
-  )
+    <div className="w-full px-4 py-10 sm:px-8 lg:px-12">
+      <div className="mx-auto w-full max-w-7xl">
+        <AttendanceControl />
+      </div>
+    </div>
+  );
 }
-
-export default page
