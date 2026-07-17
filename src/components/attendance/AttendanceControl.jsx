@@ -191,7 +191,7 @@ export default function AttendanceControl() {
           className="flex items-center justify-center gap-2 rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <CheckCircle2 className="h-4 w-4" />
-          Open Time In
+          Enable Time In
         </button>
 
         <button

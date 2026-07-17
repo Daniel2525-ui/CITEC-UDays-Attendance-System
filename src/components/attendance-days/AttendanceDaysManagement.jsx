@@ -28,7 +28,7 @@ export default function AttendanceDaysManagement() {
   } = useAttendanceDays();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDay, setEditingDay] = useState(null); // null = creating
+  const [editingDay, setEditingDay] = useState(null); 
   const [form, setForm] = useState(emptyForm);
 
   const openCreateModal = () => {

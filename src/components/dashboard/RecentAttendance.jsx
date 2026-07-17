@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { computeAttendanceStatus, formatTime } from "@/lib/attendance-helpers";
 import StatusBadge from "./StatusBadge";
 
 export default function RecentAttendance() {
@@ -19,7 +20,7 @@ export default function RecentAttendance() {
 
       const { data: dayRecord, error: dayError } = await supabase
         .from("attendance_days")
-        .select("id")
+        .select("*")
         .eq("attendance_date", today)
         .maybeSingle();
 
@@ -55,27 +56,22 @@ export default function RecentAttendance() {
         console.error(error.message);
         return;
       }
+
+      // Status is derived through the shared helper — never read directly
+      // off the stored column, so it stays correct even if a write path
+      // elsewhere forgets to update it.
       const formatted = (data || []).map((row) => ({
         studentId: row.students?.student_id,
         name: row.students?.full_name,
         timeIn: formatTime(row.time_in),
         timeOut: row.time_out ? formatTime(row.time_out) : null,
-        status: row.status === "Complete" ? "Present" : row.status,
+        status: computeAttendanceStatus(row, dayRecord),
       }));
 
       setRecentAttendance(formatted);
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatTime = (timestamp) => {
-    if (!timestamp) return null;
-    return new Date(timestamp).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
   };
 
   return (
@@ -128,32 +124,32 @@ export default function RecentAttendance() {
                 </td>
               </tr>
             ) : (
-              recentAttendance.map((entry, index) => (
-                <tr
-                  key={entry.studentId ?? index}
-                  className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
-                >
-                  <td className="px-4 py-4 text-sm font-medium text-gray-800">
-                    {entry.studentId}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700">
-                    {entry.name}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700">
-                    {entry.timeIn ? console.log("Error") : ("Timed In")}
-                  </td>
-                  <td className="px-4 py-4 text-sm">  
-                    {entry.timeOut ? (
-                      <span className="text-gray-700">{entry.timeOut}</span>
-                    ) : (
-                      <span className="text-gray-300">———</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-4">
-                    <StatusBadge status={entry.status} />
-                  </td>
-                </tr>
-              ))
+              recentAttendance.map(
+                ({ studentId, name, timeIn, timeOut, status }, index) => (
+                  <tr
+                    key={studentId ?? index}
+                    className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
+                  >
+                    <td className="px-4 py-4 text-sm font-medium text-gray-800">
+                      {studentId}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700">{name}</td>
+                    <td className="px-4 py-4 text-sm text-gray-700">
+                      {timeIn}
+                    </td>
+                    <td className="px-4 py-4 text-sm">
+                      {timeOut ? (
+                        <span className="text-gray-700">{timeOut}</span>
+                      ) : (
+                        <span className="text-gray-300">———</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <StatusBadge status={status} />
+                    </td>
+                  </tr>
+                ),
+              )
             )}
           </tbody>
         </table>

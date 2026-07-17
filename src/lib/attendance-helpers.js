@@ -1,7 +1,3 @@
-/**
- * Formats a timestamp into a 12-hour time string.
- * Example: "2026-07-14T08:01:00Z" -> "8:01 AM"
- */
 export function formatTime(timestamp) {
   if (!timestamp) return "-";
 
@@ -12,10 +8,6 @@ export function formatTime(timestamp) {
   });
 }
 
-/**
- * Formats a date into a short readable string.
- * Example: "2026-07-14" -> "Jul 14, 2026"
- */
 export function formatDate(date) {
   if (!date) return "-";
 
@@ -26,10 +18,6 @@ export function formatDate(date) {
   });
 }
 
-/**
- * Computes a student's attendance status for a given day.
- * Status is always derived, never read directly from attendance.status.
- */
 export function computeAttendanceStatus(attendanceRecord, attendanceDay) {
   if (!attendanceRecord) {
     return attendanceDay?.attendance_open ? "Not Yet Timed In" : "Absent";
@@ -45,11 +33,6 @@ export function computeAttendanceStatus(attendanceRecord, attendanceDay) {
   return "Not Yet Timed In";
 }
 
-/**
- * Merges the full student roster with attendance records for a single day,
- * using a lookup map so every student appears exactly once, whether or not
- * they have scanned in yet.
- */
 export function mergeStudentsWithAttendance(students, attendanceRecords, attendanceDay) {
   const attendanceByStudentId = new Map();
 

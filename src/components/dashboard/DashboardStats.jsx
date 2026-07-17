@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Users, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { mergeStudentsWithAttendance } from "@/lib/attendance-helpers";
 
 export default function DashboardStats() {
   const [totalStudents, setTotalStudents] = useState(0);
@@ -18,55 +19,52 @@ export default function DashboardStats() {
     try {
       setLoading(true);
 
-      const { count: studentCount, error: studentError } = await supabase
+      const { data: students, error: studentsError } = await supabase
         .from("students")
-        .select("*", { count: "exact", head: true });
+        .select("id");
 
-      if (studentError) console.error(studentError.message);
+      if (studentsError) console.error(studentsError.message);
 
       const today = new Date().toLocaleDateString("en-CA");
 
       const { data: dayRecord, error: dayError } = await supabase
         .from("attendance_days")
-        .select("id")
+        .select("*")
         .eq("attendance_date", today)
         .maybeSingle();
 
       if (dayError) console.error(dayError.message);
 
-      let presentCount = 0;
-      let incompleteCount = 0;
-      let absentCount = 0;
+      let attendanceRecords = [];
 
       if (dayRecord?.id) {
-        const [
-          { count: completeCount },
-          { count: incompleteCountRes },
-          { count: absentCountRes },
-        ] = await Promise.all([
-          supabase
-            .from("attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("attendance_day_id", dayRecord.id)
-            .eq("status", "Complete"),
-          supabase
-            .from("attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("attendance_day_id", dayRecord.id)
-            .eq("status", "Incomplete"),
-          supabase
-            .from("attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("attendance_day_id", dayRecord.id)
-            .eq("status", "Absent"),
-        ]);
+        const { data, error } = await supabase
+          .from("attendance")
+          .select("student_id, time_in, time_out, status")
+          .eq("attendance_day_id", dayRecord.id);
 
-        presentCount = completeCount || 0;
-        incompleteCount = incompleteCountRes || 0;
-        absentCount = absentCountRes || 0;
+        if (error) console.error(error.message);
+        attendanceRecords = data || [];
       }
 
-      setTotalStudents(studentCount || 0);
+      const merged = mergeStudentsWithAttendance(
+        students || [],
+        attendanceRecords,
+        dayRecord,
+      );
+
+      const presentCount = merged.filter(
+        (row) => row.status === "Complete",
+      ).length;
+      const incompleteCount = merged.filter(
+        (row) => row.status === "Timed In",
+      ).length;
+
+      const absentCount = merged.filter(
+        (row) => row.status === "Absent",
+      ).length;
+
+      setTotalStudents(students?.length || 0);
       setPresent(presentCount);
       setIncomplete(incompleteCount);
       setAbsent(absentCount);
@@ -87,7 +85,7 @@ export default function DashboardStats() {
     {
       label: "Present",
       value: present,
-      description: "Scanned in today",
+      description: "Completed Time In and Time Out",
       icon: CheckCircle2,
       iconBg: "bg-green-50",
       iconColor: "text-green-600",
@@ -103,7 +101,7 @@ export default function DashboardStats() {
     {
       label: "Absent",
       value: absent,
-      description: "Marked absent for today",
+      description: "Did not attend today",
       icon: XCircle,
       iconBg: "bg-red-50",
       iconColor: "text-red-600",
