@@ -49,9 +49,6 @@ export default function LoginPage() {
       return;
     }
 
-    console.log("Authenticated User:", data.user);
-    console.log("Profile:", profile);
-
     if (profile.role === "administrator") {
       router.push("/admin/dashboard");
     } else if (profile.role === "officer") {
