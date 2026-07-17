@@ -56,10 +56,7 @@ export default function RecentAttendance() {
         console.error(error.message);
         return;
       }
-
-      // Status is derived through the shared helper — never read directly
-      // off the stored column, so it stays correct even if a write path
-      // elsewhere forgets to update it.
+      
       const formatted = (data || []).map((row) => ({
         studentId: row.students?.student_id,
         name: row.students?.full_name,
