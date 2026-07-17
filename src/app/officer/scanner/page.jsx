@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { ScanLine, Loader2 } from "lucide-react";
+import { ScanLine, Loader2, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { recordAttendanceScan } from "@/lib/scanAttendance";
 import SuccessCard from "@/components/officer/SuccessCard";
 import ErrorCard from "@/components/officer/ErrorCard";
@@ -13,16 +15,20 @@ const RESUME_DELAY_MS = 3000;
 export default function ScanPage() {
   const scannerRef = useRef(null);
   const resumeTimeoutRef = useRef(null);
-  const [result, setResult] = useState(null); 
+  const [result, setResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (scannerRef.current) return;
 
-    const html5QrCode = new Html5Qrcode(SCANNER_ELEMENT_ID);
-    scannerRef.current = html5QrCode;
+    const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
 
-    html5QrCode
+    scannerRef.current = scanner;
+
+    scanner
       .start(
         { facingMode: "environment" },
         {
@@ -33,31 +39,36 @@ export default function ScanPage() {
           },
         },
         (decodedText) => handleDecode(decodedText),
-        () => {
-
-        },
+        () => {},
       )
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch(console.error);
 
     return () => {
       clearTimeout(resumeTimeoutRef.current);
-      if (scannerRef.current) {
-        scannerRef.current
-          .stop()
-          .catch(() => {})
-          .finally(() => {
-            scannerRef.current?.clear();
-          });
-      }
+
+      const cleanup = async () => {
+        if (!scannerRef.current) return;
+
+        try {
+          const state = scannerRef.current.getState();
+
+          if (state === 2 || state === 3) {
+            await scannerRef.current.stop();
+          }
+
+          await scannerRef.current.clear();
+        } catch (err) {
+          console.warn("Cleanup:", err.message);
+        }
+
+        scannerRef.current = null;
+      };
+
+      cleanup();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDecode = async (decodedText) => {
-    // Pause the camera stream while this scan is processed and its result
-    // is shown, so the same code isn't re-read many times per second.
     scannerRef.current?.pause(true);
     setIsProcessing(true);
 
@@ -70,19 +81,65 @@ export default function ScanPage() {
         : { type: "error", reason: outcome.reason },
     );
 
-    // Give the officer a moment to read the result, then automatically
-    // resume scanning for the next student.
     resumeTimeoutRef.current = setTimeout(() => {
       scannerRef.current?.resume();
     }, RESUME_DELAY_MS);
   };
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+
+    clearTimeout(resumeTimeoutRef.current);
+
+    if (scannerRef.current) {
+      try {
+        const state = scannerRef.current.getState();
+
+        if (state === 2 || state === 3) {
+          await scannerRef.current.stop();
+        }
+
+        await scannerRef.current.clear();
+      } catch (err) {
+        console.warn("Scanner cleanup:", err.message);
+      }
+
+      scannerRef.current = null;
+    }
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error(error.message);
+      setLoggingOut(false);
+      return;
+    }
+
+    router.push("/");
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">QR Scanner</h1>
-          <p className="mt-2 text-gray-500">Scan a student's QR Code.</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">QR Scanner</h1>
+            <p className="mt-2 text-gray-500">Scan a student&apos;s QR Code.</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 ring-1 ring-red-100 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+            {loggingOut ? "Signing out..." : "Logout"}
+          </button>
         </div>
 
         {/* Live Camera */}
