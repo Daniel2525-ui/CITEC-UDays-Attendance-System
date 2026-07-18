@@ -73,17 +73,17 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
-            CITEC Attendance Portal
+            CITEC Attendance Management System
           </h1>
+
           <p className="mt-3 text-lg font-medium text-yellow-400">
-            QR Code-Based Attendance Management System
+            Administrator & Officer Access
           </p>
 
           <p className="mt-6 text-base leading-relaxed text-blue-100">
-            Welcome to the official attendance portal for the College of
-            Information Technology Education and Computing (CITEC).
-            Administrators and Officers can securely access the system to manage
-            student attendance during University Days.
+            Secure login for authorized administrators and officers to manage
+            student attendance during University Days using the QR Code
+            Attendance System.
           </p>
 
           <div className="mt-10 space-y-4">
