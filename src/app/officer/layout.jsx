@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import Sidebar from "@/components/layout/AdminSidebar";
 import { getSessionWithRole } from "@/lib/auth-helpers";
 
-export default function AdminLayout({ children }) {
+export default function OfficerLayout({ children }) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
 
@@ -23,8 +22,8 @@ export default function AdminLayout({ children }) {
         return;
       }
 
-      if (role !== "administrator") {
-        router.replace("/officer/scanner");
+      if (role !== "officer") {
+        router.replace("/admin/dashboard");
         return;
       }
 
@@ -40,7 +39,7 @@ export default function AdminLayout({ children }) {
 
   if (checking) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
           <Loader2 className="h-4 w-4 animate-spin" />
           Checking access...
@@ -49,10 +48,5 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
-  );
+  return <>{children}</>;
 }
