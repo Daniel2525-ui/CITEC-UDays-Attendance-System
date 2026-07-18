@@ -54,6 +54,31 @@ export function mergeStudentsWithAttendance(students, attendanceRecords, attenda
   });
 }
 
+export function buildAttendanceReport(students, attendanceDays, attendanceRecords) {
+  const recordIndex = new Map();
+
+  attendanceRecords.forEach((record) => {
+    recordIndex.set(`${record.student_id}-${record.attendance_day_id}`, record);
+  });
+
+  return students.map((student) => {
+    let daysPresent = 0;
+
+    attendanceDays.forEach((day) => {
+      const record = recordIndex.get(`${student.id}-${day.id}`) ?? null;
+      const status = computeAttendanceStatus(record, day);
+      if (status === "Complete") daysPresent += 1;
+    });
+
+    return {
+      studentId: student.student_id,
+      course: student.course,
+      yearLevel: student.year_level,
+      daysPresent,
+    };
+  });
+}
+
 export const STATUS_STYLES = {
   Complete: "bg-green-50 text-green-700 ring-1 ring-green-200",
   "Timed In": "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
