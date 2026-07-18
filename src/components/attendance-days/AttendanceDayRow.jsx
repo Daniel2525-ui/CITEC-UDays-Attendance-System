@@ -13,12 +13,6 @@ export default function AttendanceDayRow({
         {day.day_number}
       </td>
       <td className="px-4 py-3 text-gray-600">{day.attendance_date}</td>
-      <td className="px-4 py-3 text-gray-600">
-        {day.time_in_start || "—"}
-      </td>
-      <td className="px-4 py-3 text-gray-600">
-        {day.time_in_cutoff || "—"}
-      </td>
       <td className="px-4 py-3">
         <StatusBadge isOpen={day.attendance_open} />
       </td>

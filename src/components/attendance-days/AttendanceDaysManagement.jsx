@@ -11,8 +11,6 @@ import InlineMessage from "./InlineMessage";
 const emptyForm = {
   day_number: "",
   attendance_date: "",
-  time_in_start: "",
-  time_in_cutoff: "",
 };
 
 export default function AttendanceDaysManagement() {
@@ -28,7 +26,7 @@ export default function AttendanceDaysManagement() {
   } = useAttendanceDays();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDay, setEditingDay] = useState(null); 
+  const [editingDay, setEditingDay] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
   const openCreateModal = () => {
@@ -45,8 +43,6 @@ export default function AttendanceDaysManagement() {
     setForm({
       day_number: day.day_number,
       attendance_date: day.attendance_date,
-      time_in_start: day.time_in_start || "",
-      time_in_cutoff: day.time_in_cutoff || "",
     });
     setIsModalOpen(true);
   };

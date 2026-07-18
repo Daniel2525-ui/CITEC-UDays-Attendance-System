@@ -13,8 +13,6 @@ export default function AttendanceDaysTable({
           <tr>
             <th className="px-4 py-3">Day</th>
             <th className="px-4 py-3">Date</th>
-            <th className="px-4 py-3">Time In Start</th>
-            <th className="px-4 py-3">Time In Cutoff</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3 text-right">Actions</th>
           </tr>
