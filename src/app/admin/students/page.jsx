@@ -1,9 +1,10 @@
 "use client";
-import { Search, QrCode, Pencil } from "lucide-react";
+import { Search, QrCode, Pencil, Trash2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import QrModal from "@/components/students/QrModal.jsx";
 import EditStudentModal from "@/components/students/EditStudentModal";
+import AddStudentModal from "@/components/students/AddStudentModal"; //added feature
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -12,7 +13,9 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -34,6 +37,33 @@ export default function StudentsPage() {
     }
   };
 
+  const handleDelete = async (student) => {
+    const confirmed = window.confirm(
+      `Remove ${student.full_name} (${student.student_id}) from the student list? This cannot be undone.`,
+    );
+
+    if (!confirmed) return;
+
+    setDeletingId(student.id);
+
+    try {
+      const { error } = await supabase
+        .from("students")
+        .delete()
+        .eq("id", student.id);
+
+      if (error) {
+        console.error(error.message);
+        window.alert("Couldn't delete this student. Please try again.");
+        return;
+      }
+
+      setStudents((prev) => prev.filter((s) => s.id !== student.id));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const filteredStudents = students.filter((student) => {
     return (
       student.student_id.includes(search) ||
@@ -45,13 +75,23 @@ export default function StudentsPage() {
     <main className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto w-full max-w-6xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">
-            Students
-          </h1>
-          <p className="mt-2 text-sm text-gray-500 sm:text-base">
-            Manage enrolled students for University Days 2026.
-          </p>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">
+              Students
+            </h1>
+            <p className="mt-2 text-sm text-gray-500 sm:text-base">
+              Manage enrolled students for University Days 2026.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 sm:self-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Student
+          </button>
         </div>
 
         {/* Search */}
@@ -105,6 +145,17 @@ export default function StudentsPage() {
                       Loading Students...
                     </td>
                   </tr>
+                ) : filteredStudents.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-4 py-10 text-center text-sm text-gray-500"
+                    >
+                      {students.length === 0
+                        ? "No students yet. Click \u201cAdd Student\u201d to create one."
+                        : "No students match your search."}
+                    </td>
+                  </tr>
                 ) : (
                   filteredStudents.map(
                     ({ id, student_id, full_name, course, year_level }) => (
@@ -142,22 +193,35 @@ export default function StudentsPage() {
                           </button>
                         </td>
                         <td className="px-4 py-4">
-                          <button
-                            onClick={() => {
-                              setSelectedStudent({
-                                id,
-                                student_id,
-                                full_name,
-                                course,
-                                year_level,
-                              });
-                              setShowEditModal(true);
-                            }}
-                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-700"
-                          >
-                            <Pencil className="h-4 w-4" />
-                            Edit
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedStudent({
+                                  id,
+                                  student_id,
+                                  full_name,
+                                  course,
+                                  year_level,
+                                });
+                                setShowEditModal(true);
+                              }}
+                              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-700"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Edit
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                handleDelete({ id, student_id, full_name })
+                              }
+                              disabled={deletingId === id}
+                              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 transition-colors hover:border-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              {deletingId === id ? "Removing..." : "Delete"}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ),
@@ -185,7 +249,7 @@ export default function StudentsPage() {
           onClose={() => {
             setShowEditModal(false);
             setSelectedStudent(null);
-          }}  
+          }}
           onUpdated={(updated) => {
             setStudents((prev) =>
               prev.map((student) =>
@@ -197,7 +261,16 @@ export default function StudentsPage() {
           }}
         />
       )}
-
+      
+      {showAddModal && (
+        <AddStudentModal
+          onClose={() => setShowAddModal(false)}
+          onCreated={(created) => {
+            setStudents((prev) => [...prev, created]);
+            setShowAddModal(false);
+          }}
+        />
+      )}
     </main>
   );
 }

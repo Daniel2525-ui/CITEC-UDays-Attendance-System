@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { ScanLine, Loader2 } from "lucide-react";
+import { ScanLine, Loader2, KeyRound, Camera } from "lucide-react";
 import { recordAttendanceScan } from "@/lib/scanAttendance";
 import SuccessCard from "@/components/officer/SuccessCard";
 import ErrorCard from "@/components/officer/ErrorCard";
+import ManualEntryForm from "@/components/officer/ManualEntryForm"; //Added feature
 
 const SCANNER_ELEMENT_ID = "qr-reader";
 const RESUME_DELAY_MS = 3000;
@@ -13,86 +14,202 @@ const RESUME_DELAY_MS = 3000;
 export default function ScanPage() {
   const scannerRef = useRef(null);
   const resumeTimeoutRef = useRef(null);
-  const [result, setResult] = useState(null); 
+  const isScannerRunningRef = useRef(false);
+
+  const [result, setResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    if (scannerRef.current) return;
 
-    const html5QrCode = new Html5Qrcode(SCANNER_ELEMENT_ID);
-    scannerRef.current = html5QrCode;
+  const [mode, setMode] = useState("scan"); // "scan" | "manual"
+  const [manualId, setManualId] = useState("");
+  const manualInputRef = useRef(null);
 
-    html5QrCode
-      .start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: {
-            width: 250,
-            height: 250,
-          },
-        },
-        (decodedText) => handleDecode(decodedText),
-        () => {
+  const handleDecode = useCallback(async (decodedText) => {
+    const scanner = scannerRef.current;
 
-        },
-      )
-      .catch((err) => {
-        console.error(err);
-      });
+    if (!scanner || !isScannerRunningRef.current || isProcessing) return;
 
-    return () => {
-      clearTimeout(resumeTimeoutRef.current);
-      if (scannerRef.current) {
-        scannerRef.current
-          .stop()
-          .catch(() => {})
-          .finally(() => {
-            scannerRef.current?.clear();
-          });
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleDecode = async (decodedText) => {
-    // Pause the camera stream while this scan is processed and its result
-    // is shown, so the same code isn't re-read many times per second.
-    scannerRef.current?.pause(true);
+    scanner.pause(true);
     setIsProcessing(true);
 
-    const outcome = await recordAttendanceScan(decodedText);
+    try {
+      const outcome = await recordAttendanceScan(decodedText);
 
-    setIsProcessing(false);
-    setResult(
-      outcome.success
-        ? { type: "success", ...outcome.data }
-        : { type: "error", reason: outcome.reason },
-    );
+      setResult(
+        outcome.success
+          ? { type: "success", ...outcome.data }
+          : { type: "error", reason: outcome.reason }
+      );
+    } finally {
+      setIsProcessing(false);
 
-    // Give the officer a moment to read the result, then automatically
-    // resume scanning for the next student.
-    resumeTimeoutRef.current = setTimeout(() => {
-      scannerRef.current?.resume();
-    }, RESUME_DELAY_MS);
-  };
+      clearTimeout(resumeTimeoutRef.current);
+
+      resumeTimeoutRef.current = setTimeout(() => {
+        if (scannerRef.current && isScannerRunningRef.current) {
+          try {
+            scannerRef.current.resume();
+          } catch {
+          }
+        }
+      }, RESUME_DELAY_MS);
+    }
+  }, [isProcessing]);
+
+  useEffect(() => {
+    if (mode !== "scan") return;
+    if (scannerRef.current) return;
+
+    let mounted = true;
+
+    const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
+    scannerRef.current = scanner;
+
+    const startScanner = async () => {
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: {
+              width: 250,
+              height: 250,
+            },
+          },
+          handleDecode,
+          () => {}
+        );
+
+        if (mounted) {
+          isScannerRunningRef.current = true;
+        }
+      } catch (err) {
+        console.error("Failed to start scanner:", err);
+      }
+    };
+
+    startScanner();
+
+    return () => {
+      mounted = false;
+
+      clearTimeout(resumeTimeoutRef.current);
+
+      const currentScanner = scannerRef.current;
+      scannerRef.current = null;
+
+      if (!currentScanner) return;
+
+      const safeClear = () => {
+        try {
+          // Ayaw butangi og .catch() ang clear() kay dili man siya Promise. Kung gusto kag error handling, gamita ang try...catch
+          currentScanner.clear();
+        } catch {
+          // Ignore if there's nothing to clear.
+        }
+      };
+
+      if (isScannerRunningRef.current) {
+        currentScanner
+          .stop()
+          .catch(() => {
+            // Ignore "scanner is not running" errors.
+          })
+          .finally(() => {
+            isScannerRunningRef.current = false;
+            safeClear();
+          });
+      } else {
+        safeClear();
+      }
+    };
+  }, [handleDecode, mode]);
+
+  // --- Manual submit uses the exact same recordAttendanceScan call and result handling ---
+  const handleManualSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      const value = manualId.trim();
+      if (!value || isProcessing) return;
+
+      setIsProcessing(true);
+
+      try {
+        const outcome = await recordAttendanceScan(value);
+
+        setResult(
+          outcome.success
+            ? { type: "success", ...outcome.data }
+            : { type: "error", reason: outcome.reason }
+        );
+      } finally {
+        setIsProcessing(false);
+        setManualId("");
+        manualInputRef.current?.focus();
+      }
+    },
+    [manualId, isProcessing]
+  );
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
-      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
-        <div className="mb-8">
+    <main className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800">QR Scanner</h1>
-          <p className="mt-2 text-gray-500">Scan a student's QR Code.</p>
+          <p className="mt-2 text-gray-500">
+            Scan a student&apos;s QR code, or enter their ID manually if a
+            code isn&apos;t available.
+          </p>
         </div>
 
-        {/* Live Camera */}
-        <div
-          id={SCANNER_ELEMENT_ID}
-          className="overflow-hidden rounded-3xl border border-gray-200"
-        />
+        <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-gray-100 p-1">
+          <button
+            type="button"
+            onClick={() => setMode("scan")}
+            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition ${
+              mode === "scan"
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-gray-200"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Camera className="h-4 w-4" />
+            Scan QR Code
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition ${
+              mode === "manual"
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-gray-200"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <KeyRound className="h-4 w-4" />
+            Enter ID Manually
+          </button>
+        </div>
 
-        {/* Result */}
-        <div className="mt-8">
+        {/* Scanner view */}
+        <div className={mode === "scan" ? "block" : "hidden"}>
+          <div
+            id={SCANNER_ELEMENT_ID}
+            className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50"
+          />
+        </div>
+
+        {/* MANUAL LOGIC */}
+        {mode === "manual" && (
+          <ManualEntryForm
+            ref={manualInputRef}
+            value={manualId}
+            onChange={(e) => setManualId(e.target.value)}
+            onSubmit={handleManualSubmit}
+            isProcessing={isProcessing}
+          />
+        )}
+
+        <div className="mt-6">
           {isProcessing ? (
             <div className="flex items-center justify-center gap-2 rounded-2xl bg-blue-50 p-5 text-blue-700">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -119,8 +236,11 @@ export default function ScanPage() {
                 <ScanLine className="h-5 w-5" />
                 <span className="font-semibold">Scanner Ready</span>
               </div>
+
               <div className="rounded-xl bg-white p-4 text-sm text-gray-500 ring-1 ring-blue-100">
-                Waiting for QR Code...
+                {mode === "scan"
+                  ? "Waiting for QR code..."
+                  : "Enter a student ID above and press Record Attendance."}
               </div>
             </div>
           )}
