@@ -15,19 +15,6 @@ export default function ErrorCard({ reason = DEFAULT_REASON }) {
       </div>
 
       <p className="mt-4 text-sm text-red-700/80">{reason}</p>
-
-      <div className="mt-4 rounded-2xl bg-white/60 p-4 ring-1 ring-red-100">
-        <p className="text-xs font-semibold uppercase tracking-wide text-red-600/70">
-          Possible Reasons
-        </p>
-        <ul className="mt-2 space-y-1.5 text-sm text-gray-600">
-          <li>Invalid QR Code</li>
-          <li>Student Not Found</li>
-          <li>Attendance Closed</li>
-          <li>Already Timed In</li>
-          <li>Already Timed Out</li>
-        </ul>
-      </div>
     </div>
   );
 }
