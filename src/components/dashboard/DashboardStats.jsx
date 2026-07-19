@@ -93,7 +93,7 @@ export default function DashboardStats() {
     {
       label: "Incomplete",
       value: incomplete,
-      description: "No Time Out yet",
+      description: "No Time Out",
       icon: AlertTriangle,
       iconBg: "bg-yellow-50",
       iconColor: "text-yellow-600",
