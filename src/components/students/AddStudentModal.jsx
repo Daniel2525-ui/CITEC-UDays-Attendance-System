@@ -3,7 +3,12 @@ import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+const YEAR_LEVELS = [
+  { value: "1", label: "1st Year" },
+  { value: "2", label: "2nd Year" },
+  { value: "3", label: "3rd Year" },
+  { value: "4", label: "4th Year" },
+];
 
 export default function AddStudentModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
@@ -16,7 +21,7 @@ export default function AddStudentModal({ onClose, onCreated }) {
   const [error, setError] = useState(null);
 
   const updateField = (field) => (e) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setForm((prevForm) => ({ ...prevForm, [field]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +33,11 @@ export default function AddStudentModal({ onClose, onCreated }) {
 
     if (!student_id || !full_name || !course) {
       setError("Please fill in Student ID, Name, and Course.");
+      return;
+    }
+
+    if (student_id.length !== 11) {
+      alert("Student ID must be exactly 11 digits.");
       return;
     }
 
@@ -135,9 +145,9 @@ export default function AddStudentModal({ onClose, onCreated }) {
               disabled={isSaving}
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-800 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10 disabled:opacity-60"
             >
-              {YEAR_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level}
+              {YEAR_LEVELS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </select>
