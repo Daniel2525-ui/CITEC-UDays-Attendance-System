@@ -48,6 +48,55 @@ export default function AttendanceControl() {
     setLoading(false);
   };
 
+  /**
+   * Marks every student with no attendance row on the given day as
+   * "Absent", then closes that day (attendance_open: false,
+   * time_out_enabled: false). Safe to call more than once — students
+   * who already have a row (any status) are skipped.
+   */
+  const closeDaySession = async (dayId) => {
+    const { data: allStudents, error: studentsError } = await supabase
+      .from("students")
+      .select("id");
+
+    if (studentsError) throw studentsError;
+
+    const { data: existingRecords, error: attendanceError } = await supabase
+      .from("attendance")
+      .select("student_id")
+      .eq("attendance_day_id", dayId);
+
+    if (attendanceError) throw attendanceError;
+
+    const recordedIds = new Set(
+      (existingRecords || []).map((r) => r.student_id),
+    );
+    const missingStudents = (allStudents || []).filter(
+      (s) => !recordedIds.has(s.id),
+    );
+
+    if (missingStudents.length > 0) {
+      const absentRows = missingStudents.map((s) => ({
+        student_id: s.id,
+        attendance_day_id: dayId,
+        status: "Absent",
+      }));
+
+      const { error: insertError } = await supabase
+        .from("attendance")
+        .insert(absentRows);
+
+      if (insertError) throw insertError;
+    }
+
+    const { error: closeError } = await supabase
+      .from("attendance_days")
+      .update({ attendance_open: false, time_out_enabled: false })
+      .eq("id", dayId);
+
+    if (closeError) throw closeError;
+  };
+
   const updateAttendanceSession = async (changes, successText) => {
     if (!dayRecord?.id) return;
 
@@ -72,17 +121,69 @@ export default function AttendanceControl() {
     setSuccessMessage(successText);
   };
 
-  const handleOpenAttendance = () =>
-    updateAttendanceSession(
-      { attendance_open: true, time_out_enabled: false },
-      "Time In is now open.",
-    );
+  const handleOpenAttendance = async () => {
+    if (!dayRecord?.id) return;
 
-  const handleCloseAttendance = () =>
-    updateAttendanceSession(
-      { attendance_open: false, time_out_enabled: false },
-      "Attendance has been closed.",
-    );
+    setUpdating(true);
+    setErrorMessage(null);
+
+    try {
+      // Safety net: if a previous day was left open (admin forgot to
+      // close it), close it now — marking no-shows Absent — before
+      // opening today's session. Prevents stale open sessions from
+      // piling up silently.
+      const { data: staleOpenDays, error: staleError } = await supabase
+        .from("attendance_days")
+        .select("id")
+        .eq("attendance_open", true)
+        .neq("id", dayRecord.id);
+
+      if (staleError) throw staleError;
+
+      for (const stale of staleOpenDays || []) {
+        await closeDaySession(stale.id);
+      }
+
+      const { data, error } = await supabase
+        .from("attendance_days")
+        .update({ attendance_open: true, time_out_enabled: false })
+        .eq("id", dayRecord.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setDayRecord(data);
+      setSuccessMessage(
+        staleOpenDays?.length
+          ? "Previous open day was closed automatically. Time In is now open."
+          : "Time In is now open.",
+      );
+    } catch (err) {
+      setErrorMessage("Something went wrong while opening attendance.");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCloseAttendance = async () => {
+    if (!dayRecord?.id) return;
+
+    setUpdating(true);
+    setErrorMessage(null);
+
+    try {
+      await closeDaySession(dayRecord.id);
+      await fetchTodayAttendance();
+      setSuccessMessage(
+        "Attendance has been closed. Unscanned students marked Absent.",
+      );
+    } catch (err) {
+      setErrorMessage("Something went wrong while closing attendance.");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const handleEnableTimeOut = () =>
     updateAttendanceSession(
@@ -102,7 +203,6 @@ export default function AttendanceControl() {
     : timeOutActive
       ? "TIME OUT"
       : "TIME IN";
-
   const phaseColor = !isOpen
     ? "text-gray-400"
     : timeOutActive

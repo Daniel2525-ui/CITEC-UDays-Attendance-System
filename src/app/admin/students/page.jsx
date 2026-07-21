@@ -1,14 +1,30 @@
 "use client";
 import { Search, QrCode, Pencil, Trash2, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import QrModal from "@/components/students/QrModal.jsx";
 import EditStudentModal from "@/components/students/EditStudentModal";
 import AddStudentModal from "@/components/students/AddStudentModal"; //added feature
+import CourseFilter from "@/components/students/CourseFilter"; //added feature
+
+// filter all course/sort by year level & surname
+// unrecognized value will be sorted to the bottom of the list
+function yearLevelRank(yearLevel) {
+  const match = String(yearLevel ?? "").match(/\d+/);
+  return match ? parseInt(match[0], 10) : Number.MAX_SAFE_INTEGER;
+}
+
+function getSurname(fullName) {
+  const parts = String(fullName ?? "")
+    .trim()
+    .split(/\s+/);
+  return parts[parts.length - 1] ?? "";
+}
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
+  const [courseFilter, setCourseFilter] = useState("all"); //added feature
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -64,12 +80,31 @@ export default function StudentsPage() {
     }
   };
 
-  const filteredStudents = students.filter((student) => {
-    return (
-      student.student_id.includes(search) ||
-      student.full_name.toLowerCase().includes(search.toLocaleLowerCase())
-    );
-  });
+  // added feature: unique, sorted list of courses for the filter dropdown
+  const courses = useMemo(
+    () =>
+      Array.from(new Set(students.map((s) => s.course).filter(Boolean))).sort(),
+    [students],
+  );
+
+  const filteredStudents = students
+    .filter((student) => {
+      const matchesSearch =
+        student.student_id.includes(search) ||
+        student.full_name.toLowerCase().includes(search.toLocaleLowerCase());
+
+      const matchesCourse =
+        courseFilter === "all" || student.course === courseFilter; //added feature
+
+      return matchesSearch && matchesCourse;
+    })
+    .sort((a, b) => {
+      const yearDiff =
+        yearLevelRank(a.year_level) - yearLevelRank(b.year_level);
+      if (yearDiff !== 0) return yearDiff;
+
+      return getSurname(a.full_name).localeCompare(getSurname(b.full_name));
+    }); //added feature: sort 1st -> 4th year, then by surname A-Z
 
   return (
     <main className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
@@ -94,9 +129,9 @@ export default function StudentsPage() {
           </button>
         </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative w-full sm:max-w-md">
+        {/* Search + Filter */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="relative w-full sm:max-w-md sm:flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -106,6 +141,12 @@ export default function StudentsPage() {
               className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 text-sm text-gray-800 placeholder:text-gray-400 shadow-sm focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10"
             />
           </div>
+
+          <CourseFilter
+            courses={courses}
+            value={courseFilter}
+            onChange={setCourseFilter}
+          />
         </div>
 
         {/* Students Table */}
