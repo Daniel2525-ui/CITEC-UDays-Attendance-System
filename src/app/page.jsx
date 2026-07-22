@@ -1,5 +1,13 @@
 "use client";
-import { Mail, Lock, QrCode, ShieldCheck, Users } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  QrCode,
+  ShieldCheck,
+  Users,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react";
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -7,6 +15,8 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -27,6 +37,8 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage(null);
+    setLoading(true);
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -34,7 +46,8 @@ export default function LoginPage() {
     });
 
     if (error) {
-      console.error(error.message);
+      setErrorMessage("Invalid email or password. Please try again.");
+      setLoading(false);
       return;
     }
 
@@ -45,7 +58,8 @@ export default function LoginPage() {
       .single();
 
     if (profileError) {
-      console.error(profileError.message);
+      setErrorMessage("Unable to load your account. Please try again.");
+      setLoading(false);
       return;
     }
 
@@ -53,6 +67,9 @@ export default function LoginPage() {
       router.push("/admin/dashboard");
     } else if (profile.role === "officer") {
       router.push("/officer/scanner");
+    } else {
+      setErrorMessage("Your account doesn't have access to this system.");
+      setLoading(false);
     }
   };
 
@@ -116,6 +133,13 @@ export default function LoginPage() {
               <p className="mt-2 text-sm text-gray-500">Sign in to continue</p>
             </div>
 
+            {errorMessage && (
+              <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-100">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label
@@ -161,9 +185,11 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="mt-2 w-full rounded-xl bg-blue-700 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-colors hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-600/30"
+                disabled={loading}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-colors hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-600/30 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Login
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loading ? "Signing in..." : "Login"}
               </button>
             </form>
 
