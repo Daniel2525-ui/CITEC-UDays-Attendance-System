@@ -83,7 +83,7 @@ export default function DashboardStats() {
       iconColor: "text-blue-700",
     },
     {
-      label: "Present",
+      label: "Complete",
       value: present,
       description: "Completed Time In and Time Out",
       icon: CheckCircle2,

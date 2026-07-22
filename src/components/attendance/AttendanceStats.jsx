@@ -24,7 +24,7 @@ export default function AttendanceStats({ rows = [] }) {
 
   const cards = [
     {
-      label: "Present",
+      label: "Complete",
       value: stats.present,
       icon: CheckCircle2,
       bg: "bg-green-50",
