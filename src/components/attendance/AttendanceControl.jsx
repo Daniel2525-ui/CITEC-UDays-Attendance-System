@@ -97,6 +97,24 @@ export default function AttendanceControl() {
     if (closeError) throw closeError;
   };
 
+  /**
+   * Undoes the synthetic "Absent" placeholders closeDaySession writes.
+   * Only removes rows with no time_in — i.e. auto-generated absences
+   * with zero real scan data — so a student's actual attendance can
+   * never be deleted by this, even if it were somehow marked Absent
+   * some other way.
+   */
+  const reopenDaySession = async (dayId) => {
+    const { error: deleteError } = await supabase
+      .from("attendance")
+      .delete()
+      .eq("attendance_day_id", dayId)
+      .eq("status", "Absent")
+      .is("time_in", null);
+
+    if (deleteError) throw deleteError;
+  };
+
   const updateAttendanceSession = async (changes, successText) => {
     if (!dayRecord?.id) return;
 
@@ -143,6 +161,11 @@ export default function AttendanceControl() {
       for (const stale of staleOpenDays || []) {
         await closeDaySession(stale.id);
       }
+
+      // Undo any Absent placeholders written for TODAY specifically —
+      // covers the case where this same day was already closed
+      // (accidentally or otherwise) and is now being reopened.
+      await reopenDaySession(dayRecord.id);
 
       const { data, error } = await supabase
         .from("attendance_days")
