@@ -43,7 +43,7 @@ export default function ScanPage() {
       const value = manualId.trim();
       if (!value || isProcessing) return;
 
-      if (student_id.length !== 11) {
+      if (value.length !== 11) {
         alert("Student ID must be exactly 11 digits.");
         return;
       }
