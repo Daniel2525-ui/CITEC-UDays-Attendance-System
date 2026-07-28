@@ -151,26 +151,26 @@ export default function StudentsPage() {
 
         {/* Students Table */}
         <div className="rounded-3xl bg-white p-2 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-4">
-          <div className="overflow-x-auto">
+          <div className="max-h-[600px] overflow-y-auto overflow-x-auto rounded-xl">
             <table className="w-full min-w-100 border-collapse">
-              <thead>
+              <thead className="sticky top-0 z-10 bg-white">
                 <tr className="border-b border-gray-100 text-left">
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Student ID
                   </th>
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Student Name
                   </th>
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Course
                   </th>
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Year Level
                   </th>
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     QR Code
                   </th>
-                  <th className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Actions
                   </th>
                 </tr>
