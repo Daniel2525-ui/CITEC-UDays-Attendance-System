@@ -55,14 +55,14 @@ export default function AttendanceTable({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="max-h-[600px] overflow-y-auto overflow-x-auto rounded-xl">
           <table className="w-full min-w-240 border-collapse">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-white">
               <tr className="border-b border-gray-100 text-left">
                 {TABLE_HEADERS.map((header) => (
                   <th
                     key={header}
-                    className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                    className="bg-white px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
                   >
                     {header}
                   </th>
