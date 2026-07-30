@@ -55,7 +55,7 @@ export default function AttendanceTable({
           </p>
         </div>
       ) : (
-        <div className="max-h-[600px] overflow-y-auto overflow-x-auto rounded-xl">
+        <div className="max-h-150 overflow-y-auto overflow-x-auto rounded-xl">
           <table className="w-full min-w-240 border-collapse">
             <thead className="sticky top-0 z-10 bg-white">
               <tr className="border-b border-gray-100 text-left">

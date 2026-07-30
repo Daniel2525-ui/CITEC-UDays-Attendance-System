@@ -151,7 +151,7 @@ export default function StudentsPage() {
 
         {/* Students Table */}
         <div className="rounded-3xl bg-white p-2 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-4">
-          <div className="max-h-[600px] overflow-y-auto overflow-x-auto rounded-xl">
+          <div className="max-h-150 overflow-y-auto overflow-x-auto rounded-xl">
             <table className="w-full min-w-100 border-collapse">
               <thead className="sticky top-0 z-10 bg-white">
                 <tr className="border-b border-gray-100 text-left">

@@ -128,6 +128,8 @@ export function useAttendanceDays() {
       return;
     }
 
+    if (!confirm("Are you sure you want to delete this attendance date?")) return;
+
     setDays((prev) => prev.filter((day) => day.id !== id));
     setSuccessMessage("Attendance day deleted.");
   };
