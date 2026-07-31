@@ -116,6 +116,8 @@ export function useAttendanceDays() {
     setDeletingId(id);
     setErrorMessage(null);
 
+    if (!confirm("Are you sure you want to delete this attendance date?")) return;
+
     const { error } = await supabase
       .from("attendance_days")
       .delete()
@@ -127,8 +129,6 @@ export function useAttendanceDays() {
       setErrorMessage("Unable to delete this attendance day.");
       return;
     }
-
-    if (!confirm("Are you sure you want to delete this attendance date?")) return;
 
     setDays((prev) => prev.filter((day) => day.id !== id));
     setSuccessMessage("Attendance day deleted.");
