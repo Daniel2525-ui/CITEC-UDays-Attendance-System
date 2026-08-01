@@ -67,7 +67,7 @@ export default function AdminSidebar() {
 
         <div>
           <p className="text-sm font-bold leading-tight text-gray-800">
-            CITEC Portal
+            CITEC Console
           </p>
 
           <p className="text-xs text-gray-400">Admin Panel</p>
