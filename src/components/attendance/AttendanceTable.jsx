@@ -10,15 +10,12 @@ const TABLE_HEADERS = [
   "Student Name",
   "Course",
   "Year Level",
-  "Day",
-  "Date",
   "Time In",
   "Time Out",
   "Status",
 ];
 
 export default function AttendanceTable({
-  attendanceDay,
   rows,
   loading,
   error,
@@ -38,6 +35,7 @@ export default function AttendanceTable({
   return (
     <div className="rounded-3xl bg-white p-6 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:p-8">
       <AttendanceToolbar search={search} onSearchChange={setSearch} />
+
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-500">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -55,8 +53,8 @@ export default function AttendanceTable({
           </p>
         </div>
       ) : (
-        <div className="max-h-150 overflow-y-auto overflow-x-auto rounded-xl">
-          <table className="w-full min-w-240 border-collapse">
+        <div className="mt-4 max-h-150 overflow-y-auto overflow-x-auto rounded-xl">
+          <table className="w-full min-w-200 border-collapse">
             <thead className="sticky top-0 z-10 bg-white">
               <tr className="border-b border-gray-100 text-left">
                 {TABLE_HEADERS.map((header) => (
@@ -71,11 +69,7 @@ export default function AttendanceTable({
             </thead>
             <tbody>
               {filteredRows.map((row) => (
-                <AttendanceRow
-                  key={row.rowKey}
-                  row={row}
-                  attendanceDay={attendanceDay}
-                />
+                <AttendanceRow key={row.rowKey} row={row} />
               ))}
             </tbody>
           </table>

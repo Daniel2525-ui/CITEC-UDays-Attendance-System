@@ -67,14 +67,9 @@ export default function Page() {
   return (
     <div className="min-h-screen w-full bg-gray-50 px-4 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto w-full max-w-7xl">
-        <AttendanceHeader />
+        <AttendanceHeader attendanceDay={attendanceDay} />
         <AttendanceStats rows={rows} />
-        <AttendanceTable
-          attendanceDay={attendanceDay}
-          rows={rows}
-          loading={loading}
-          error={error}
-        />
+        <AttendanceTable rows={rows} loading={loading} error={error} />
       </div>
     </div>
   );

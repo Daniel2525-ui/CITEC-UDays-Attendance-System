@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  formatDate,
   formatTime,
   STATUS_STYLES,
 } from "@/lib/attendance-helpers";
 
-export default function AttendanceRow({ row, attendanceDay }) {
+export default function AttendanceRow({ row }) {
   const { student, timeIn, timeOut, status } = row;
 
   const statusStyle =
@@ -20,12 +19,6 @@ export default function AttendanceRow({ row, attendanceDay }) {
       <td className="px-4 py-4 text-sm">{student.full_name}</td>
       <td className="px-4 py-4 text-sm">{student.course}</td>
       <td className="px-4 py-4 text-sm">{student.year_level}</td>
-      <td className="px-4 py-4 text-sm">
-        {attendanceDay?.day_number ?? "-"}
-      </td>
-      <td className="px-4 py-4 text-sm">
-        {formatDate(attendanceDay?.attendance_date)}
-      </td>
       <td className="px-4 py-4 text-sm">{formatTime(timeIn)}</td>
       <td className="px-4 py-4 text-sm">{formatTime(timeOut)}</td>
       <td className="px-4 py-4">
