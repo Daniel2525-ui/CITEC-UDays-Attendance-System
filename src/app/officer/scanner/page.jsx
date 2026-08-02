@@ -56,35 +56,37 @@ export default function ScanPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
-      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100">
+    <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-5 shadow-xl shadow-blue-900/5 ring-1 ring-gray-100 sm:rounded-3xl sm:p-8">
         <OfficerScannerHeader onLogout={handleLogout} loggingOut={loggingOut} />
 
         {/* Mode toggle */}
-        <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-gray-100 p-1">
+        <div className="mb-5 grid grid-cols-2 gap-1.5 rounded-2xl bg-gray-100 p-1 sm:mb-6 sm:gap-2">
           <button
             type="button"
             onClick={() => setMode("scan")}
-            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition sm:gap-2 sm:py-2.5 sm:text-sm ${
               mode === "scan"
                 ? "bg-white text-blue-700 shadow-sm ring-1 ring-gray-200"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <Camera className="h-4 w-4" />
-            Scan QR Code
+            <Camera className="h-4 w-4 shrink-0" />
+            <span className="sm:hidden">Scan</span>
+            <span className="hidden sm:inline">Scan QR Code</span>
           </button>
           <button
             type="button"
             onClick={() => setMode("manual")}
-            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition sm:gap-2 sm:py-2.5 sm:text-sm ${
               mode === "manual"
                 ? "bg-white text-blue-700 shadow-sm ring-1 ring-gray-200"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <KeyRound className="h-4 w-4" />
-            Enter ID Manually
+            <KeyRound className="h-4 w-4 shrink-0" />
+            <span className="sm:hidden">Manual ID</span>
+            <span className="hidden sm:inline">Enter ID Manually</span>
           </button>
         </div>
 
@@ -102,7 +104,7 @@ export default function ScanPage() {
           />
         )}
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <ScannerResult
             isProcessing={isProcessing}
             result={result}
