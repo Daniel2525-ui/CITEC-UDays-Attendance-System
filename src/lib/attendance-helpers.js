@@ -71,6 +71,7 @@ export function buildAttendanceReport(students, attendanceDays, attendanceRecord
     });
 
     return {
+      fullName: student.full_name,
       studentId: student.student_id,
       course: student.course,
       yearLevel: student.year_level,

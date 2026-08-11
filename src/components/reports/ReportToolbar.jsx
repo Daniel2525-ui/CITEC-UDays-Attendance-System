@@ -3,7 +3,7 @@ import { Search, Download } from "lucide-react";
 import { downloadCsv } from "@/lib/csv-export";
 
 const CSV_COLUMNS = [
-  { key: "studentId", label: "Student ID" },
+  { key: "fullName", label: "Student Name" },
   { key: "course", label: "Course" },
   { key: "yearLevel", label: "Year Level" },
   { key: "daysPresent", label: "Days Present" },

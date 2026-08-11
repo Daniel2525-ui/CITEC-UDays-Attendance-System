@@ -24,7 +24,7 @@ export function useAttendanceReport() {
         { data: attendanceDays, error: daysError },
         { data: attendanceRecords, error: recordsError },
       ] = await Promise.all([
-        supabase.from("students").select("id, student_id, course, year_level"),
+        supabase.from("students").select("id, student_id, full_name, course, year_level"),
         supabase.from("attendance_days").select("*"),
         supabase
           .from("attendance")
