@@ -13,9 +13,6 @@ export default function AttendanceRow({ row }) {
 
   return (
     <tr className="border-b border-gray-50 transition-colors hover:bg-gray-50/60">
-      <td className="px-4 py-4 text-sm font-medium text-gray-800">
-        {student.student_id}
-      </td>
       <td className="px-4 py-4 text-sm">{student.full_name}</td>
       <td className="px-4 py-4 text-sm">{student.course}</td>
       <td className="px-4 py-4 text-sm">{student.year_level}</td>

@@ -156,9 +156,6 @@ export default function StudentsPage() {
               <thead className="sticky top-0 z-10 bg-white">
                 <tr className="border-b border-gray-100 text-left">
                   <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Student ID
-                  </th>
-                  <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Student Name
                   </th>
                   <th className="bg-white px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -204,9 +201,6 @@ export default function StudentsPage() {
                         key={id}
                         className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
                       >
-                        <td className="px-4 py-4 text-sm font-medium text-gray-800">
-                          {student_id}
-                        </td>
                         <td className="px-4 py-4 text-sm text-gray-700">
                           {full_name}
                         </td>

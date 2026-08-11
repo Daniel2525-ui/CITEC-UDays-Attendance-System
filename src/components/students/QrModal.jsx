@@ -79,7 +79,6 @@ export default function QrModal({ student, onClose }) {
           <p className="text-base font-semibold text-gray-800">
             {student?.full_name}
           </p>
-          <p className="text-sm text-gray-500">{student?.student_id}</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">

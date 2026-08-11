@@ -7,7 +7,6 @@ export default function ReportTable({ rows, loading }) {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-400">
             <tr>
-              <th className="px-4 py-3">Student ID</th>
               <th className="px-4 py-3">Course</th>
               <th className="px-4 py-3">Year Level</th>
               <th className="px-4 py-3">Days Present</th>
@@ -34,7 +33,6 @@ export default function ReportTable({ rows, loading }) {
             ) : (
               rows.map((row) => (
                 <tr key={row.studentId} className="hover:bg-gray-50/60">
-                  <td className="px-4 py-3 font-semibold text-gray-700">{row.studentId}</td>
                   <td className="px-4 py-3 text-gray-600">{row.course}</td>
                   <td className="px-4 py-3 text-gray-600">{row.yearLevel}</td>
                   <td className="px-4 py-3 text-gray-600">{row.daysPresent}</td>

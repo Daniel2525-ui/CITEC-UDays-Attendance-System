@@ -6,7 +6,6 @@ import AttendanceToolbar from "./AttendanceToolbar";
 import AttendanceRow from "./AttendanceRow";
 
 const TABLE_HEADERS = [
-  "Student ID",
   "Student Name",
   "Course",
   "Year Level",
