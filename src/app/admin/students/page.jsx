@@ -40,7 +40,10 @@ export default function StudentsPage() {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.from("students").select("*");
+      const { data, error } = await supabase
+        .from("students")
+        .select("*")
+        .order("full_name");
 
       if (error) {
         console.error("error.message ");
