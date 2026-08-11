@@ -1,11 +1,10 @@
 import { CheckCircle2 } from "lucide-react";
 
 const FIELDS = [
-  { label: "Student Name", value: "Juan Dela Cruz" },
-  { label: "Student ID", value: "2024-0001" },
-  { label: "Course", value: "BS Information Technology" },
-  { label: "Year Level", value: "2nd Year" },
-  { label: "Time Recorded", value: "8:05 AM" },
+  { label: "Student Name" },
+  { label: "Course" },
+  { label: "Year Level" },
+  { label: "Time Recorded" },
 ];
 
 export default function SuccessCard({ data = {}, status = "TIME IN" }) {
@@ -31,9 +30,7 @@ export default function SuccessCard({ data = {}, status = "TIME IN" }) {
             <p className="text-xs font-medium uppercase tracking-wide text-green-600/70">
               {label}
             </p>
-            <p className="mt-1 text-sm font-semibold text-gray-800">
-              {value}
-            </p>
+            <p className="mt-1 text-sm font-semibold text-gray-800">{value}</p>
           </div>
         ))}
 
