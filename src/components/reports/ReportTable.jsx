@@ -21,7 +21,7 @@ export default function ReportTable({ rows, loading }) {
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan="4" className="px-4 py-10">
+                <td colSpan="3" className="px-4 py-10">
                   <div className="flex flex-col items-center gap-2 text-center">
                     <FileBarChart className="h-8 w-8 text-gray-300" />
                     <p className="text-sm font-medium text-gray-500">
