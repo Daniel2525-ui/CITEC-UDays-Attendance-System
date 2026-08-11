@@ -72,7 +72,6 @@ export default function EditStudentModal({ student, onClose, onUpdated }) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-800">Edit Student</h2>
-            <p className="text-sm text-gray-500">{student?.student_id}</p>
           </div>
         </div>
 
