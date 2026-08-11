@@ -55,7 +55,7 @@ export default function StudentsPage() {
 
   const handleDelete = async (student) => {
     const confirmed = window.confirm(
-      `Remove ${student.full_name} (${student.student_id}) from the student list? This cannot be undone.`,
+      `Remove  ${student.full_name} from the student list? This cannot be undone.`,
     );
 
     if (!confirmed) return;
