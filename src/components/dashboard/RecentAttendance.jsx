@@ -85,9 +85,6 @@ export default function RecentAttendance() {
           <thead>
             <tr className="border-b border-gray-100 text-left">
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide">
-                Student ID
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide">
                 Student Name
               </th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide">
@@ -114,7 +111,7 @@ export default function RecentAttendance() {
             ) : recentAttendance.length === 0 ? (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="4"
                   className="px-4 py-10 text-center text-sm text-gray-400"
                 >
                   No attendance records yet.
@@ -127,9 +124,6 @@ export default function RecentAttendance() {
                     key={studentId ?? index}
                     className="border-b border-gray-50 transition-colors hover:bg-gray-50/60"
                   >
-                    <td className="px-4 py-4 text-sm font-medium text-gray-800">
-                      {studentId}
-                    </td>
                     <td className="px-4 py-4 text-sm text-gray-700">{name}</td>
                     <td className="px-4 py-4 text-sm text-gray-700">
                       {timeIn}
