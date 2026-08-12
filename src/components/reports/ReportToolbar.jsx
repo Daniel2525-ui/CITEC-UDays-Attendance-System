@@ -22,7 +22,7 @@ export default function ReportToolbar({ searchTerm, onSearchChange, rows }) {
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by Student ID or Course..."
+          placeholder="Search by Student Name or Course..."
           className="w-full rounded-2xl border border-gray-200 py-2.5 pl-10 pr-4 text-sm text-gray-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
         />
       </div>

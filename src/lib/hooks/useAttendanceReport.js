@@ -62,7 +62,7 @@ export function useAttendanceReport() {
     const term = searchTerm.toLowerCase();
     return sorted.filter(
       (row) =>
-        row.studentId?.toLowerCase().includes(term) ||
+        row.fullName?.toLowerCase().trim().includes(term) ||
         row.course?.toLowerCase().includes(term),
     );
   }, [rows, searchTerm]);
