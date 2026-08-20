@@ -200,7 +200,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 text-center text-xs text-gray-400">
-            College of Information Technology Education and Computing
+            College of Information Technology Entertainment and Computing
           </p>
         </div>
       </section>
